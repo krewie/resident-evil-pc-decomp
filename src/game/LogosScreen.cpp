@@ -43,14 +43,16 @@ void logos_state(void)
 
     Task_sleep(3);
 
-    // if (g_bIsSoftwareRendering == FALSE) {
+    if (!g_bSkipLogosFmv) {
+        // if (g_bIsSoftwareRendering == FALSE) {
         g_selectedFmvId = 23;
         // g_CurrentFMVID = 23;
         g_FmvCharacterId = 0;
         g_main_state_flags |= MSF_FMV_REQUEST;
-    // } else {
-    //     QueueVideoPlayback(29, 0);
-    // }
+        // } else {
+        //     QueueVideoPlayback(29, 0);
+        // }
+    }
 
     Task_sleep(1);
 

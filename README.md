@@ -350,6 +350,14 @@ It is off by default, so the shipped behaviour is the original's masks. The
 original's 100-frame grace period still applies, so a press during the first few
 seconds of a movie is ignored.
 
+### Skip capcom logo
+If you just wanna skip that ear shattering capcom intro, its beautiful but gets annoying after a while.
+```ini
+[Game]
+; Skips capcom logo
+SkipCapcomLogo=0
+```
+
 ## Controls
 
 The port keeps the original 1997 input model: every binding is a *function*
