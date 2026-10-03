@@ -3119,6 +3119,48 @@ static void player_door_open_sequence(void)      // 0x00457390
     }
 }
 
+static void player_behavior_09_quick_turn(void)
+{
+    switch (g_playerEntity.action_state) {
+        case 0:
+            // Reset animation state and lock player movement.
+            g_playerEntity.animation_frame_id = 0;
+            g_playerEntity.unk_bf = 0;
+            g_playerEntity.move_speed_current = 0;
+
+            // Same animation setup used by normal in-place turning.
+            g_playerEntity.attackAnim = 2;
+            g_playerEntity.unk_8c = 3;
+            g_playerEntity.isBeingAttackedFlag = 0;
+
+            // Use attackDirection as an 8-frame countdown.
+            g_playerEntity.attackDirection = 8;
+            g_playerEntity.action_state = 1;
+            // fall through
+
+        case 1:
+            // 0x100 * 8 frames = 0x800 = exactly 180 degrees.
+            g_playerEntity.directionAngle =
+                (short)((g_playerEntity.directionAngle + 0x100) & 0x0fff);
+
+            Joint_move(
+                0,
+                g_playerEntity.jointMoveData0,
+                g_playerEntity.jointMoveData1,
+                0x400);
+
+            g_playerEntity.attackDirection--;
+
+            if (g_playerEntity.attackDirection == 0) {
+                g_playerEntity.animFrameId = 0;
+                g_playerEntity.action_behavior = 0;
+                g_playerEntity.action_state = 0;
+                g_playerEntity.move_speed_current = 0;
+            }
+            return;
+    }
+}
+
 // ============================================================================
 // player_input_to_behavior (0x004956a0)
 // Reads the D-pad and picks the next action_behavior. This is the function that
@@ -3132,6 +3174,16 @@ static void player_door_open_sequence(void)      // 0x00457390
 static void player_input_to_behavior(void)
 {
     unsigned int held = (unsigned int)g_PlayerDpadHeld;
+
+    // Port addition: quick turn - hold back and press action.
+    if ((held & 0x04) != 0 &&
+        (g_PlayerDpadPressed & 0x80) != 0) {
+
+        g_playerEntity.animFrameId = 2;     // locked behavior: don't reread movement input
+        g_playerEntity.action_behavior = 9;
+        g_playerEntity.action_state = 0;
+        return;
+    }
 
     // 0x004956a0: action button newly pressed
     if ((((held & 0xc0) == 0x80) || ((held & 0xc0) == 0xc0)) &&
@@ -5789,6 +5841,7 @@ static void player_ctrl_frame2(void)
         player_ctrl_behavior_run();
         return;
     case 9:
+        player_behavior_09_quick_turn();
         return;                       // 0x00495df0 - empty in the original
     case 10:          // door transition
     case 0x11:
