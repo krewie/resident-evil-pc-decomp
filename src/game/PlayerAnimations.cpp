@@ -3175,9 +3175,9 @@ static void player_input_to_behavior(void)
 {
     unsigned int held = (unsigned int)g_PlayerDpadHeld;
 
-    // Port addition: quick turn - hold back and press action.
+    // port-addition: quick-turn - hold back and press action.
     if ((held & 0x04) != 0 &&
-        (g_PlayerDpadPressed & 0x80) != 0) {
+        (g_PlayerDpadPressed & 0x200) != 0) {
 
         g_playerEntity.animFrameId = 2;     // locked behavior: don't reread movement input
         g_playerEntity.action_behavior = 9;
@@ -5842,7 +5842,7 @@ static void player_ctrl_frame2(void)
         return;
     case 9:
         player_behavior_09_quick_turn();
-        return;                       // 0x00495df0 - empty in the original
+        return;                       // 0x00495df0 - empty in the original / port-addition: quick-turn
     case 10:          // door transition
     case 0x11:
         player_door_open_sequence();
