@@ -1,3 +1,32 @@
+## About this fork
+
+This repository is a fork of **Resident Evil 1 for PC Decompilation v1.3.0**.
+
+The goal of this fork is to keep the original project intact while adding a small number of optional quality-of-life and presentation improvements.
+perhaps a few gameplay changes in their own branches but thats mostly experimental for me.
+
+Current additions include:
+
+- **Run in background** — the game can continue running while the window is unfocused instead of pausing like the original Windows application.
+  ```ini
+  [Game]
+  ; Don't pause the game when the window is out of focus
+  RunInBackground=1
+  ```
+
+- **Skip Capcom logo** — optionally skip the Capcom startup logo - personally ive heard it a million times.
+  ```ini
+  [Game]
+  ; Skip the Capcom logo
+  SkipCapcomLogo=1
+  ```
+
+- **Quick turn** — press **Down + Run/Dash** to perform a 180-degree quick turn, similar to the mechanic introduced in *Resident Evil 3*.
+
+- **Viewport rendering** — the original logical game resolution is now mapped into a centered presentation viewport using a uniform scale. This preserves the intended aspect ratio instead of independently stretching the X and Y axes to fill the backbuffer. Rendering outside the viewport is clipped, allowing proper letterboxing or pillarboxing when necessary.
+The viewport abstraction also makes it possible to support alternative presentation modes later, such as stretch-to-fill or configurable aspect ratios, without changing the game's logical rendering code.
+
+
 # Resident Evil 1 for PC Decompilation
 
 ## Introduction
