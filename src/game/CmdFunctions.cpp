@@ -850,9 +850,14 @@ int cmd_enemy_set(void)
 
     if ((char)g_ScdOpcodes[3] != -1) {
         if (Flg_ck((int)g_EnemiesFlags, (unsigned char)g_ScdOpcodes[3]) != 0) {
-            g_ScdOpcodes += 0x16;
-            dbg_printf("ENEMY SET END %s\n", "enemy_set");
-            return 1;
+            if ((rand() % 100) >= 25) {
+                // 75% chance: stay dead
+                g_ScdOpcodes += 0x16;
+                dbg_printf("ENEMY SET END %s\n", "enemy_set");
+                return 1;
+            }
+
+            // 25% chance: fall through and respawn
         }
     }
 
