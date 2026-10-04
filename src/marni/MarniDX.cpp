@@ -919,6 +919,21 @@ void MarniDX::Clear(float r, float g, float b, float a)
             D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
+void MarniDX::SetScissorRect(int x, int y, int w, int h)
+{
+    Impl* p = m_pImpl;
+    if (!p || !p->context) return;
+
+    D3D11_RECT sr = {
+        (LONG)x,
+        (LONG)y,
+        (LONG)(x + w),
+        (LONG)(y + h)
+    };
+
+    p->context->RSSetScissorRects(1, &sr);
+}
+
 void MarniDX::Present()
 {
     Impl* p = m_pImpl;

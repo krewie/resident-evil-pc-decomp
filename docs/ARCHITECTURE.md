@@ -57,7 +57,11 @@ even in Ghidra. Regenerate this table any time with
 2. **32-bit Architecture**: The game is strictly 32-bit, using Win32 API
 3. **Modern Graphics Backend**: DirectX 5.0 → Direct3D 11 with HLSL shaders, quad-based sprite rendering
 4. **Task-Based Game Logic**: Game logic is organized into tasks that are scheduled each frame
-5. **Fixed Resolution Rendering**: Base game resolution is 320×240, scaled to display resolution
+
+5. **Logical Resolution + Presentation Viewport**: Game rendering remains in the original 320×240 logical coordinate space. 
+A **MarniRenderViewport** maps that space into the physical backbuffer using a centered uniform scale, preserving the original aspect ratio. 
+Rendering is clipped to the presentation viewport with a D3D11 scissor rectangle, while the rest of the backbuffer remains available for letterboxing or pillarboxing.
+
 6. **Sprite Queue System**: All 2D rendering goes through a pending sprite queue, rendered during `game_frame_present`
 7. **Address Traceability**: every rewritten function comments its original Ghidra address; globals comment their original variable address, so any line traces back to the binary
 
@@ -276,7 +280,7 @@ The vertex shader transforms positions with an orthographic projection matrix (s
 
 2. **Sprite queue renders after Clear** — The queue is rendered in step 5c, AFTER `MarniClear`. This ensures all queued sprites are visible.
 
-3. **Scaling**: Game coordinates (320×240 base resolution) are scaled to screen resolution inside each sprite-builder function (`AddTintSprite`, `draw_rect`, `display_texture`) before queueing.
+3. **Scaling**: Presentation mapping: Game-space coordinates are converted from the original logical coordinate system into the current MarniRenderViewport. Rendering paths use the viewport's uniform scale and centered physical offset rather than independent X/Y backbuffer scaling. This mapping is applied in rendering paths such as (`AddTintSprite`, `draw_rect`, `display_texture`) before queueing.
 
 4. **Depth-split rendering**: `FrameRateGovernor` renders in three phases to match the original game's depth-sorted ordering:
    - **Phase 1** (depth ≥ 500): Background and scene elements from `g_pendingSprites` (e.g., title BG at 0xFFF, pause overlays at 2100)
@@ -724,15 +728,36 @@ init_and_start_game()
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Resolution Scaling
+### Presentation Viewport
 
-The game renders at a logical 320×240 resolution. All drawing functions scale to the actual screen resolution:
+The game retains its original logical rendering resolution of 320x240 however, logical coordinates are mapped to
+the physical D3D11 backbuffer through **MarniRenderViewport**.
 
 ```
-scaleX = screenWidth / 320.0f
-scaleY = screenHeight / 240.0f
+scaleX = backbufferWidth  / logicalWidth;
+scaleY = backbufferHeight / logicalHeight;
+scale  = min(scaleX, scaleY);
 ```
 
+The presenation area is then centered:
+
+```
+viewport.width  = logicalWidth  * scale;
+viewport.height = logicalHeight * scale;
+viewport.x = (backbufferWidth  - viewport.width)  * 0.5f;
+viewport.y = (backbufferHeight - viewport.height) * 0.5f;
+```
+
+and logical positions are converted using:
+
+```
+screenX = viewport.x + logicalX * viewport.scale;
+screenY = viewport.y + logicalY * viewport.scale;
+```
+
+Widths and heights are scaled without applying the viewport offset.
+The D3D11 scissor rectangle is set to the same presentation bounds each rendered frame to prevent stuff from appearing inside the letterbox / pillarbox regions.
+The backbuffer itself remains full-window size and is cleared independently of the presentation viewport.
 The font atlas texture is 256×256 pixels and UV coordinates are normalized by the texture dimensions (not the screen).
 
 ### Color Depth
