@@ -72,6 +72,7 @@ extern DWORD         g_dwScreenWidth;                  // 0x007d9150
 extern DWORD         g_dwScreenHeight;                 // 0x007d9154
 extern BOOL          g_bFullScreen;
 extern BOOL          g_bVSync;                         // config.ini [Display] VSync                    // 0x007d9158
+extern BOOL          g_bRunInBackground;               // config.ini [Display] RunInBackground          //Allow seamlessly run app in background even in fullscreen. 
 extern int           g_dwBitDepth;                     // 0x004d642c
 extern DWORD         g_GPU_VENDOR_ID;                  // 0x004bcb64
 
@@ -471,6 +472,7 @@ extern bool          g_bPs1FmvSubtitles;      // [Game] Ps1FmvSubtitles
 // per-FMV mask table (0x004c39dc) marks 0x0000 - the endings, the staff rolls
 // and DMF/DME. Off by default, so the original's masks are what ship.
 extern bool          g_bSkipUnskippableFmv;    // [Game] SkipUnskippableFmv
+extern bool          g_bSkipLogosFmv;          // [Game] SkipCapcomLogo
 
 // Every "are we in Director's Cut mode" test in the port. Deliberately a macro
 // over g_GameMode rather than a second global: there is one stored value, so

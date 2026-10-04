@@ -447,6 +447,7 @@ BOOL ConfigFile_Load(void)
     g_dwScreenHeight = (DWORD)ReadInt(path, "Display", "Height", (int)g_dwScreenHeight);
     g_dwBitDepth     = (DWORD)ReadInt(path, "Display", "BitDepth", (int)g_dwBitDepth);
     g_bVSync         = ReadInt(path, "Display", "VSync", g_bVSync ? 1 : 0) ? TRUE : FALSE;
+    g_bRunInBackground = ReadInt(path, "Display", "RunInBackground", g_bRunInBackground ? 1 : 0) ? TRUE : FALSE;
 
     // Same clamps the Windows build applied.
     if (g_dwScreenWidth < 320) g_dwScreenWidth = 640;
@@ -514,6 +515,10 @@ BOOL ConfigFile_Load(void)
     // Port-added: overrides the per-FMV skip mask so the movies the original
     // marks unskippable can be skipped too. Off unless the key is set.
     g_bSkipUnskippableFmv = ReadInt(path, "Game", "SkipUnskippableFmv", 0) != 0;
+
+    // skip capcom logo in the beginning
+    g_bSkipLogosFmv = ReadInt(path, "Game", "SkipCapcomLogo", 0) != 0;
+
     dbg_printf("[CONFIG] mode=%s overlay=%s ps1_credits=%d\n", GameModeName(g_GameMode),
                GetAssetModeName()[0] ? GetAssetModeName() : "(none)",
                g_bPs1EndingCredits ? 1 : 0);

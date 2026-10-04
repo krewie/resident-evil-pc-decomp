@@ -88,13 +88,15 @@ int AddTintSprite(TextureDesc* texture, unsigned short brightness)
 
     // Scale game-space to the backbuffer: physical/logical, exactly how the
     // original Marni layer scaled primitives at draw time (FUN_0042ba60).
-    float scaleX, scaleY;
-    MarniGetRenderScale(&scaleX, &scaleY);
+    //float scaleX, scaleY;
+    //MarniGetRenderScale(&scaleX, &scaleY);
 
-    float screenX = gameX * scaleX;
-    float screenY = gameY * scaleY;
-    float charW = (float)texture->width * scaleX;
-    float charH = (float)texture->height * scaleY;
+    MarniRenderViewport vp = MarniGetRenderViewport();
+
+    float screenX = vp.x + gameX * vp.scale;
+    float screenY = vp.y + gameY * vp.scale;
+    float charW = (float)texture->width * vp.scale;
+    float charH = (float)texture->height * vp.scale;
 
     // Font page select. The original's AddTintSprite looks `texturePage` up in
     // the texture-page table (JPN 0x00441120 / USA 0x0046e0a0 search slots
@@ -209,13 +211,14 @@ void draw_rect(RectDrawDesc* rect, int blend, int flags)
     float gameH = (float)rect->h;
 
     // Scale game-space (320x240) to the real backbuffer (see AddTintSprite).
-    float scaleX, scaleY;
-    MarniGetRenderScale(&scaleX, &scaleY);
+    //float scaleX, scaleY;
+    //MarniGetRenderScale(&scaleX, &scaleY);
+    MarniRenderViewport vp = MarniGetRenderViewport();
 
-    float screenX = gameX * scaleX;
-    float screenY = gameY * scaleY;
-    float screenW = gameW * scaleX;
-    float screenH = gameH * scaleY;
+    float screenX = vp.x + gameX * vp.scale;
+    float screenY = vp.y + gameY * vp.scale;
+    float screenW = gameW * vp.scale;
+    float screenH = gameH * vp.scale;
 
     unsigned char r = (unsigned char)(rect->r & 0xFF);
     unsigned char g = (unsigned char)(rect->g & 0xFF);
@@ -316,15 +319,16 @@ void QueueTexturedSprite(float gameX, float gameY, float gameW, float gameH,
     CMarniDirect3D* pD3D = (CMarniDirect3D*)g_pMarniDirect3D;
     if (pD3D == NULL) return;
 
-    // Scale game-space (320x240) to the real backbuffer (see AddTintSprite).
-    float scaleX, scaleY;
-    MarniGetRenderScale(&scaleX, &scaleY);
+    // game-space (320x240) and mapped into the centered presentation viewport.
+    //float scaleX, scaleY;
+    //MarniGetRenderScale(&scaleX, &scaleY);
+    MarniRenderViewport vp = MarniGetRenderViewport();
 
     PendingSprite* spr = &g_pendingSprites[g_pendingSpriteCount];
-    spr->x = (gameX + (float)g_ScreenOffsetX) * scaleX;
-    spr->y = (gameY + (float)g_ScreenOffsetY) * scaleY;
-    spr->w = gameW * scaleX;
-    spr->h = gameH * scaleY;
+    spr->x = vp.x + (gameX + (float)g_ScreenOffsetX) * vp.scale;
+    spr->y = vp.y + (gameY + (float)g_ScreenOffsetY) * vp.scale;
+    spr->w = gameW * vp.scale;
+    spr->h = gameH * vp.scale;
     spr->u0 = 0.0f;
     spr->v0 = 0.0f;
     spr->u1 = 1.0f;
@@ -390,6 +394,20 @@ void FrameRateGovernor(void)
     } else {
         if (g_ScreenAccessReady && g_RenderAccessReady) {
             MarniClear();
+
+            MarniRenderViewport vp = MarniGetRenderViewport();
+
+            int left = (int)floorf(vp.x);
+            int top = (int)floorf(vp.y);
+            int right = (int)ceilf(vp.x + vp.width);
+            int bottom = (int)ceilf(vp.y + vp.height);
+
+            Marni_DX()->SetScissorRect(
+                left,
+                top,
+                right - left,
+                bottom - top
+            );
 
             FUN_0040a8f0(NULL);
 
@@ -590,10 +608,13 @@ void OT_InsertPrimitive(void* prim, unsigned int depth)
 
     CMarniDirect3D* pD3D = (CMarniDirect3D*)g_pMarniDirect3D;
 
-    // The display image is a logical-resolution framebuffer (320x240 in game);
-    // the quad spans logical * scale = the full backbuffer (see AddTintSprite).
-    float scaleX, scaleY;
-    MarniGetRenderScale(&scaleX, &scaleY);
+    // The display image is a logical-resolution framebuffer (320x240 in game).
+    // Present it inside the centered aspect-preserving viewport.
+    
+    //float scaleX, scaleY;
+    //MarniGetRenderScale(&scaleX, &scaleY);
+    MarniRenderViewport vp = MarniGetRenderViewport();
+
     DWORD lw = (pD3D && pD3D->m_logicalWidth  >= 320) ? pD3D->m_logicalWidth  : 320;
     DWORD lh = (pD3D && pD3D->m_logicalHeight >= 240) ? pD3D->m_logicalHeight : 240;
 
@@ -612,10 +633,10 @@ void OT_InsertPrimitive(void* prim, unsigned int depth)
     for (int i = g_pendingSpriteCount; i > 0; i--) {
         g_pendingSprites[i] = g_pendingSprites[i - 1];
     }
-    g_pendingSprites[0].x = 0;
-    g_pendingSprites[0].y = 0;
-    g_pendingSprites[0].w = (float)lw * scaleX;
-    g_pendingSprites[0].h = (float)lh * scaleY;
+    g_pendingSprites[0].x = vp.x;
+    g_pendingSprites[0].y = vp.y;
+    g_pendingSprites[0].w = vp.width;
+    g_pendingSprites[0].h = vp.height;
     g_pendingSprites[0].u0 = du;
     g_pendingSprites[0].v0 = dv;
     g_pendingSprites[0].u1 = 1.0f + du;

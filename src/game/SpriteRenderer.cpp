@@ -102,12 +102,11 @@ void FlushSpriteCommandsRange(unsigned int minDepth, unsigned int maxDepth,
             return a.depthSort > b.depthSort;
         });
 
-    CMarniDirect3D* pD3D = (CMarniDirect3D*)g_pMarniDirect3D;
-    (void)pD3D;
-    // Scale PS1-space coords to the backbuffer: physical/logical, exactly how
-    // the original Marni layer scaled primitives at draw time (FUN_0042ba60).
-    float scaleX, scaleY;
-    MarniGetRenderScale(&scaleX, &scaleY);
+
+    // Map PS1-space coordinates into the centered presentation viewport.
+    // The uniform viewport scale preserves the logical aspect ratio, while
+    // vp.x/vp.y provide the physical backbuffer offset.
+    MarniRenderViewport vp = MarniGetRenderViewport();
 
     for (int i = 0; i < g_SpriteQueueCount; i++) {
         TextureDraw* cmd = &g_SpriteCommandBuffer[i];
@@ -119,10 +118,10 @@ void FlushSpriteCommandsRange(unsigned int minDepth, unsigned int maxDepth,
         // into the ordering table with depthSort = depth*16 + 500, exactly
         // like draw_texture, so it participates in the same OT sort.
         if (cmd->type == 11) {
-            float sx0 = (float)cmd->x0 * scaleX;
-            float sy0 = (float)cmd->y0 * scaleY;
-            float sx1 = (float)cmd->x1 * scaleX;
-            float sy1 = (float)cmd->y1 * scaleY;
+            float sx0 = vp.x + (float)cmd->x0 * vp.scale;
+            float sy0 = vp.y + (float)cmd->y0 * vp.scale;
+            float sx1 = vp.x + (float)cmd->x1 * vp.scale;
+            float sy1 = vp.y + (float)cmd->y1 * vp.scale;
 
             int cr = (int)(cmd->r * 255.0f);
             int cg = (int)(cmd->g * 255.0f);
@@ -136,7 +135,7 @@ void FlushSpriteCommandsRange(unsigned int minDepth, unsigned int maxDepth,
             int ca = (int)(alpha * 255.0f);
             if (ca > 255) ca = 255; if (ca < 0) ca = 0;
             DWORD color = ((DWORD)ca << 24) | ((DWORD)cr << 16) | ((DWORD)cg << 8) | (DWORD)cb;
-            MarniDrawLine(sx0, sy0, sx1, sy1, 1.0f, color);
+            MarniDrawLine(sx0, sy0, sx1, sy1, vp.scale, color);
             continue;
         }
         if (cmd->type == 12) {
@@ -219,8 +218,9 @@ void FlushSpriteCommandsRange(unsigned int minDepth, unsigned int maxDepth,
             const int idx[6] = { 0, 1, 2, 0, 2, 3 };
             for (int t = 0; t < 6; t++) {
                 int k = idx[t];
-                verts[t][0] = (float)cxy[k][0] * scaleX;
-                verts[t][1] = (float)cxy[k][1] * scaleY;
+                verts[t][0] = vp.x + (float)cxy[k][0] * vp.scale;
+                verts[t][1] = vp.y + (float)cxy[k][1] * vp.scale;
+
                 verts[t][2] = TmdViewZToNdc((float)cwz[k]);     // NDC z (depth test)
                 verts[t][3] = (float)cwz[k];                   // view z = w
                 verts[t][4] = (float)cuv[k][0] * (1.0f / 4096.0f);
@@ -245,10 +245,11 @@ void FlushSpriteCommandsRange(unsigned int minDepth, unsigned int maxDepth,
         // Rounding the two edges of every quad to the same integer pixel
         // lines makes abutting strips agree exactly - their shared boundary
         // rounds to the same value because it is the same game coordinate.
-        float x0s = (float)cmd->x0 * scaleX;
-        float y0s = (float)cmd->y0 * scaleY;
-        float x1s = (float)(cmd->x1 + 1) * scaleX;
-        float y1s = (float)(cmd->y1 + 1) * scaleY;
+        float x0s = vp.x + (float)cmd->x0 * vp.scale;
+        float y0s = vp.y + (float)cmd->y0 * vp.scale;
+        float x1s = vp.x + (float)(cmd->x1 + 1) * vp.scale;
+        float y1s = vp.y + (float)(cmd->y1 + 1) * vp.scale;
+
         float x = (float)floor(x0s + 0.5f);
         float y = (float)floor(y0s + 0.5f);
         float w = (float)floor(x1s + 0.5f) - x;

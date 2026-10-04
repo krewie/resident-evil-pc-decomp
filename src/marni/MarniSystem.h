@@ -16,6 +16,20 @@
 #include "MarniDX.h"
 
 // ============================================================================
+// MarniRenderViewport
+//
+// Describes the centered presentation area used to map the game's logical
+// render space into the physical D3D11 backbuffer while preserving aspect ratio.
+// ============================================================================
+struct MarniRenderViewport {
+    float x;
+    float y;
+    float width;
+    float height;
+    float scale;
+};
+
+// ============================================================================
 // CMarniDirect3D - Capcom's original D3D wrapper class (vtable at 0x004af230)
 // Object size: 0x21DC (8676 bytes) — preserved via trailing padding.
 //
@@ -155,6 +169,9 @@ void  MarniDrawTrianglesPersp(const float* verts, int triCount, MarniHandle tex,
 // CMarniDirect3D::m_width/m_height (SetVideoResolution stomps those with the
 // logical video resolution while the swapchain keeps the window size).
 void  MarniGetRenderScale(float* outScaleX, float* outScaleY);
+
+// port-addition: viewport calculator.
+MarniRenderViewport MarniGetRenderViewport();
 
 // Create a texture from raw host pixels; returns an opaque MarniHandle.
 // bpp may be 4, 8, 16, 24, or 32. On success the handle is written to

@@ -21,6 +21,8 @@ BitDepth=16
 ; Wait for vblank on present. 0 = off (default, and what the original did
 ; in a window): the engine paces itself to 33 ms per tick in software.
 VSync=0
+; Dont pause the game with game window out of focus
+RunInBackground=1
 
 [Assets]
 ; Folder that holds the USA/ and JPN/ data trees. Relative paths are resolved
@@ -47,6 +49,9 @@ Ps1EndingCredits=0
 ; Set to 1 to let the movies the original leaves unskippable (the endings, the
 ; staff rolls, DMF and DME) be skipped with the usual buttons like any other FMV.
 SkipUnskippableFmv=0
+
+; Skips capcom logo
+SkipCapcomLogo=0
 
 [Debug]
 ; Master switch for the port-added debug features: F1 debug menu, F6

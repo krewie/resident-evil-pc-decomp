@@ -252,7 +252,7 @@ static int VTable_HandleWindowMessage(void* self, HWND hwnd, UINT msg,
 
     switch (msg) {
     case WM_ACTIVATE:
-        pD3D->m_isActive = (LOWORD(wParam) != WA_INACTIVE);
+        pD3D->m_isActive = g_bRunInBackground || (LOWORD(wParam) != WA_INACTIVE);
         return 1;
     case WM_SIZE:
     case WM_DESTROY:
@@ -832,4 +832,44 @@ BOOL MarniCreateTexture(int width, int height, int bpp, const void* pixelData,
     *outTex = pD3D->m_pDX->CreateTexture(width, height, bpp, pixelData,
                                          NULL, NULL);
     return (*outTex != MARNI_NULL_HANDLE);
+}
+
+// ============================================================================
+// MarniGetRenderViewport
+// Maps the logical game resolution into a centered, aspect-preserving
+// presentation area within the physical backbuffer.
+// ============================================================================
+MarniRenderViewport MarniGetRenderViewport()
+{
+    DWORD bw = 0, bh = 0;
+    DWORD lw = 320, lh = 240;
+
+    CMarniDirect3D* pD3D = (CMarniDirect3D*)g_pMarniDirect3D;
+
+    if (pD3D) {
+        if (pD3D->m_pDX)
+            pD3D->m_pDX->GetBackBufferSize(&bw, &bh);
+
+        if (pD3D->m_logicalWidth >= 320)
+            lw = pD3D->m_logicalWidth;
+
+        if (pD3D->m_logicalHeight >= 240)
+            lh = pD3D->m_logicalHeight;
+    }
+
+    if (bw < 320) bw = 320;
+    if (bh < 240) bh = 240;
+
+    float sx = (float)bw / (float)lw;
+    float sy = (float)bh / (float)lh;
+    float scale = (sx < sy) ? sx : sy;
+
+    MarniRenderViewport vp;
+    vp.width = (float)lw * scale;
+    vp.height = (float)lh * scale;
+    vp.x = ((float)bw - vp.width) * 0.5f;
+    vp.y = ((float)bh - vp.height) * 0.5f;
+    vp.scale = scale;
+
+    return vp;
 }
