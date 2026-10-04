@@ -3189,9 +3189,9 @@ static void map_display_animate(unsigned char* state)
         play_sfx(3, 9, 0);
         // fall through
     case 1:
-        g_MapZoomDesc[0].screenX = 0x10;
+        g_MapZoomDesc[0].screenX = 0;
         g_MapZoomDesc[0].screenY = 2;
-        g_MapZoomDesc[0].width = 0x80;
+        g_MapZoomDesc[0].width = 160;
         g_MapZoomDesc[1].screenX = 0;
         g_MapZoomDesc[1].screenY = 0;
         g_MapZoomDesc[1].width = 0x51;
@@ -3228,9 +3228,9 @@ static void map_display_animate(unsigned char* state)
             g_MapZoomDesc[i].scaleX = 0x1000;
             g_MapZoomDesc[i].scaleY = 0x1000;
         }
-        g_MapZoomDesc[0].screenX = 0x80;
-        g_MapZoomDesc[0].screenY = 0x4e;
-        g_MapZoomDesc[0].width = 0x80;
+        g_MapZoomDesc[0].screenX = 112;
+        g_MapZoomDesc[0].screenY = 78;
+        g_MapZoomDesc[0].width = 160;
         g_MapZoomDesc[1].screenX = 0x70;
         g_MapZoomDesc[1].screenY = 0x4c;
         g_MapZoomDesc[1].width = 0x50;
@@ -3264,9 +3264,9 @@ static void map_display_animate(unsigned char* state)
         break;
     case 7:
         g_MapZoomDesc[0].flags = g_MapZoomDesc[0].flags & 0xefffffff;
-        g_MapZoomDesc[0].screenX = 0x10;
+        g_MapZoomDesc[0].screenX = 0;
         g_MapZoomDesc[0].screenY = 2;
-        g_MapZoomDesc[0].width = 0x80;
+        g_MapZoomDesc[0].width = 160;
         g_MapZoomDesc[1].screenX = 0;
         g_MapZoomDesc[1].screenY = 0;
         g_MapZoomDesc[1].width = 0x51;
