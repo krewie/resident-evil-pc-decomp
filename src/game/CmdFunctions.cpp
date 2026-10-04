@@ -840,6 +840,35 @@ int cmd_item_search(void)
     return 0;
 }
 
+static bool enemy_death_flag_allows_spawn(void)
+{
+    unsigned char enemyId = g_ScdOpcodes[1];
+
+    bool canRevive = (enemyId == 0 || enemyId == 1);
+
+    if ((char)g_ScdOpcodes[3] == -1) {
+        return true;
+    }
+
+    unsigned char deathFlag = g_ScdOpcodes[3];
+
+    if (Flg_ck((int)g_EnemiesFlags, deathFlag) == 0) {
+        return true; // enemy isn't dead, spawn normally
+    }
+
+    if (!canRevive) {
+        return false; // dead non-zombie stays dead
+    }
+
+    // 1 in 3 chance of respawn, matching the Beretta crit odds.
+    if ((rand() % 3) != 0) {
+        return false; // zombie stays dead
+    }
+
+    FUN_00473f10((int*)g_EnemiesFlags, deathFlag);
+    return true; // zombie revived
+}
+
 // ============================================================================
 // 0x1B - cmd_enemy_set (0x004617d0)
 // Set up an enemy entity in the room.
@@ -848,17 +877,9 @@ int cmd_enemy_set(void)
 {
     dbg_printf("ENEMY SET START %s\n", "enemy_set");
 
-    if ((char)g_ScdOpcodes[3] != -1) {
-        if (Flg_ck((int)g_EnemiesFlags, (unsigned char)g_ScdOpcodes[3]) != 0) {
-            if ((rand() % 100) >= 25) {
-                // 75% chance: stay dead
-                g_ScdOpcodes += 0x16;
-                dbg_printf("ENEMY SET END %s\n", "enemy_set");
-                return 1;
-            }
-
-            // 25% chance: fall through and respawn
-        }
+    if (!enemy_death_flag_allows_spawn()) {
+        g_ScdOpcodes += 0x16;
+        return 1;
     }
 
     unsigned char enemySlot = g_ScdOpcodes[0x12] & 0xf;

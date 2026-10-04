@@ -345,13 +345,13 @@ unsigned char apply_weapon_damage(unsigned int weapon_id)
     // of 4 instead of the weapon id (SLUS_005.51 0x800120e8). The range above
     // was already read with the real weapon, matching the original's order.
     unsigned char hitStateBase = (unsigned char)weapon_id;
-    /*
+    
     if (g_bDcMode && (g_main_state_flags2 & MSF2_DC_ADVANCED) != 0 &&
         weaponAdj == 1 && ((DC_BERETTA_ROLL_MASK >> (rand() & 0xF)) & 1) != 0) {
         weaponAdj = 3;
         g_scaled_down_dist = weaponAdj;
         hitStateBase = 4;
-    }*/
+    }
 
     // Apply DC-style crit to original Beretta.
     if (weaponAdj == 1 &&
