@@ -233,6 +233,8 @@ public:
     // Used to clip game rendering to the centered aspect-preserving viewport.
     void SetScissorRect(int x, int y, int w, int h);
 
+    void Resize(int width, int height);
+
     // PImpl-style internals live in the .cpp; this class only exposes the
     // stable handle-based surface. All D3D11 state pointers are hidden inside
     // the impl to guarantee the public header stays D3D11-free.

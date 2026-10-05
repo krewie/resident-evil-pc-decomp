@@ -12,6 +12,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <time.h>
+#include <cmath>
 
 extern unsigned int set_message_display(unsigned short msg_id, unsigned short pause_game);
 extern void Flg_on(int baseAddr, unsigned int bitIndex);
