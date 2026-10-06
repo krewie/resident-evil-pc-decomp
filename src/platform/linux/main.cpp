@@ -216,6 +216,20 @@ int main(int argc, char** argv)
             case SDL_KEYDOWN:
                 if (g_bWindowFocused) {
                     plat_key_event(e.key.keysym.scancode, TRUE);
+
+                    if (!e.key.repeat) {
+                        switch (e.key.keysym.scancode) {
+                        case SDL_SCANCODE_F2:
+                            g_scaleMode = g_scaleMode == MARNI_SCALE_INTEGER
+                                ? MARNI_SCALE_FIT
+                                : MARNI_SCALE_INTEGER;
+                            break;
+
+                        case SDL_SCANCODE_F9:
+                            // TODO: port the Windows OnKeyDown(VK_F9) logic here
+                            break;
+                        }
+                    }
                 }
                 break;
             case SDL_KEYUP:
