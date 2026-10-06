@@ -132,30 +132,16 @@ static BOOL MciOpenAndPlay(const char* absPath, int playToMs)
 
     s_windowCreated = TRUE;
 
-    // Fill the whole client area. The MCI AVI video is always 320x240; MCI
-    // handles centering within the destination.
-    RECT clientRect;
-    GetClientRect(g_hWnd, &clientRect);
-
-    const int cw = clientRect.right - clientRect.left;
-    const int ch = clientRect.bottom - clientRect.top;
-
-    const float sx = (float)cw / 320.0f;
-    const float sy = (float)ch / 240.0f;
-    const float scale = (sx < sy) ? sx : sy;
-
-    const int drawW = (int)(320.0f * scale + 0.5f);
-    const int drawH = (int)(240.0f * scale + 0.5f);
-
-    const int drawX = (cw - drawW) / 2;
-    const int drawY = (ch - drawH) / 2;
+    MarniRenderViewport vp = MarniGetRenderViewport();
 
     sprintf_s(
-        cmd,sizeof(cmd),
+        cmd, sizeof(cmd),
         "put movie destination at %d %d %d %d",
-        drawX, drawY,
-        drawW,drawH
-    );  
+        (int)vp.x,
+        (int)vp.y,
+        (int)vp.width,
+        (int)vp.height
+    );
     
     mciSendStringA(cmd, NULL, 0, g_hWnd);
 
@@ -560,31 +546,22 @@ static void Present(void)
         dx->UpdateTexturePixels(s_tex, s_rgba, s_width, s_height, 32);
     }
 
-    DWORD bw = 0, bh = 0;
-    dx->GetBackBufferSize(&bw, &bh);
-    if (bw == 0 || bh == 0) return;
+    MarniRenderViewport vp = MarniGetRenderViewport();
 
-    float sx = (float)bw / (float)s_width;
-    float sy = (float)bh / (float)s_height;
-    float scale = (sx < sy) ? sx : sy;
-
-    float drawW = (float)s_width * scale;
-    float drawH = (float)s_height * scale;
-    float drawX = ((float)bw - drawW) * 0.5f;
-    float drawY = ((float)bh - drawH) * 0.5f;
 
     dx->Clear(0.0f, 0.0f, 0.0f, 1.0f);
     const int frameMs = s_frameIndex > 0
         ? (int)((double)s_frameIndex * 1000.0 / s_fps + 0.5) : 0;
     if (s_overlayCallback == NULL || !s_overlayCallback(s_tex, frameMs)) {
         dx->DrawSprite(
-            drawX, drawY,
-            drawW, drawH,
+            vp.x, vp.y,
+            vp.width, vp.height,
             0.0f, 0.0f, 1.0f, 1.0f,
             0xFFFFFFFFu,
             s_tex,
             MARNI_SAMPLER_POINT,
-            MARNI_BLEND_DISABLE);
+            MARNI_BLEND_DISABLE
+        );
     }
     dx->Present();
 }
