@@ -31,8 +31,8 @@ struct MarniRenderViewport {
 
 enum MarniScaleMode
 {
-    MARNI_SCALE_FIT,
-    MARNI_SCALE_INTEGER
+    MARNI_SCALE_FIT = 0,
+    MARNI_SCALE_INTEGER = 1
 };
 
 extern MarniScaleMode g_scaleMode;

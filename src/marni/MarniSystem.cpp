@@ -24,8 +24,7 @@
 #include <new>
 #include <cmath>
 
-//TODO KRILLE: MOVE THIS TO CONFIG
-MarniScaleMode g_scaleMode = MARNI_SCALE_INTEGER;
+MarniScaleMode g_scaleMode = MARNI_SCALE_FIT;
 
 // Verify the struct size is exactly what the original binary expects.
 // operator_new(0x21DC) in InitializeMarniSystem must match sizeof.

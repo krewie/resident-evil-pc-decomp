@@ -25,12 +25,15 @@ Current additions include:
 
 - **Viewport rendering** — the original logical game resolution is now mapped into a centered presentation viewport using a uniform scale. This preserves the intended aspect ratio instead of independently stretching the X and Y axes to fill the backbuffer. Rendering outside the viewport is clipped, allowing proper letterboxing or pillarboxing when necessary.
 The viewport abstraction also makes it possible to support alternative presentation modes later, such as stretch-to-fill or configurable aspect ratios, without changing the game's logical rendering code.
+Right now i intend to keep it 4 by 3 as it was the intended ratio for the backgrounds...
 
 - **EKG scaling correctly** - the health EKG line now renders slightly thicker to better match its PlayStation counterpart.
 
 - **Resizable window** - the game window can now be resized freely in windowed mode, with rendering automatically adapting to the new backbuffer size.
 
 - **Map bugfix** - The map rendering has also been updated to work correctly with arbitrary viewport sizes and aspect ratios. Previously the map didnt render properly due with width issues.
+
+- **Integer scaling** - Press F2 to toggle integer scaling on or off.
 # Resident Evil 1 for PC Decompilation
 
 ## Introduction
