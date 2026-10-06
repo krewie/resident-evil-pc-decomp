@@ -22,6 +22,10 @@
 #include <cstdio>
 #include <cstring>
 #include <new>
+#include <cmath>
+
+//TODO KRILLE: MOVE THIS TO CONFIG
+MarniScaleMode g_scaleMode = MARNI_SCALE_INTEGER;
 
 // Verify the struct size is exactly what the original binary expects.
 // operator_new(0x21DC) in InitializeMarniSystem must match sizeof.
@@ -841,35 +845,46 @@ BOOL MarniCreateTexture(int width, int height, int bpp, const void* pixelData,
 // ============================================================================
 MarniRenderViewport MarniGetRenderViewport()
 {
-    DWORD bw = 0, bh = 0;
-    DWORD lw = 320, lh = 240;
+    DWORD bw = 0;
+    DWORD bh = 0;
 
-    CMarniDirect3D* pD3D = (CMarniDirect3D*)g_pMarniDirect3D;
+    CMarniDirect3D* pD3D =
+        (CMarniDirect3D*)g_pMarniDirect3D;
 
-    if (pD3D) {
-        if (pD3D->m_pDX)
-            pD3D->m_pDX->GetBackBufferSize(&bw, &bh);
-
-        if (pD3D->m_logicalWidth >= 320)
-            lw = pD3D->m_logicalWidth;
-
-        if (pD3D->m_logicalHeight >= 240)
-            lh = pD3D->m_logicalHeight;
-    }
+    if (pD3D && pD3D->m_pDX)
+        pD3D->m_pDX->GetBackBufferSize(&bw, &bh);
 
     if (bw < 320) bw = 320;
     if (bh < 240) bh = 240;
 
-    float sx = (float)bw / (float)lw;
-    float sy = (float)bh / (float)lh;
-    float scale = (sx < sy) ? sx : sy;
+    float scale;
+
+    if (g_scaleMode == MARNI_SCALE_INTEGER) {
+        float sx = (float)bw / 320.0f;
+        float sy = (float)bh / 240.0f;
+
+        scale = floorf((sx < sy) ? sx : sy);
+
+        if (scale < 1.0f)
+            scale = 1.0f;
+    }
+    else {
+        float sx = (float)bw / 320.0f;
+        float sy = (float)bh / 240.0f;
+
+        scale = (sx < sy) ? sx : sy;
+    }
 
     MarniRenderViewport vp;
-    vp.width = (float)lw * scale;
-    vp.height = (float)lh * scale;
+
+    vp.width  = 320.0f * scale;
+    vp.height = 240.0f * scale;
+
     vp.x = ((float)bw - vp.width) * 0.5f;
     vp.y = ((float)bh - vp.height) * 0.5f;
+
     vp.scale = scale;
+
 
     return vp;
 }
