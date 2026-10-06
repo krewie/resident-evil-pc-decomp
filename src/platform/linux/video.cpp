@@ -422,11 +422,24 @@ void Present(void)
     dx->GetBackBufferSize(&bw, &bh);
     if (bw == 0 || bh == 0) return;
 
+    //Preserve source aspect ratio.
+    float sx = (float)bw / (float)s_width;
+    float sy = (float)bh / (float)s_height;
+    float scale = (sx < sy) ? sx : sy;
+
+    float drawW = (float)s_width * scale;
+    float drawH = (float)s_height * scale;
+
+    float drawX = ((float)bw - drawW) * 0.5f;
+    float drawY = ((float)bh - drawH) * 0.5f;
+    
+
     dx->Clear(0.0f, 0.0f, 0.0f, 1.0f);
+
     const int frameMs = s_frameIndex > 0
         ? (int)((double)s_frameIndex * 1000.0 / s_fps + 0.5) : 0;
     if (s_overlayCallback == NULL || !s_overlayCallback(s_tex, frameMs)) {
-        dx->DrawSprite(0.0f, 0.0f, (float)bw, (float)bh,
+        dx->DrawSprite(drawX, drawY, drawW, drawH,
                        0.0f, 0.0f, 1.0f, 1.0f,
                        0xFFFFFFFFu, s_tex, MARNI_SAMPLER_POINT, MARNI_BLEND_DISABLE);
     }
