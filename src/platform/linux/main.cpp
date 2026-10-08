@@ -146,6 +146,10 @@ int main(int argc, char** argv)
     InitializeMarniSystem();
     if (!IsGraphicsSystemReadyForOperation()) {
         fprintf(stderr, "graphics system failed to initialize\n");
+
+        // port-addition: Release controllers if graphics initialization fails.
+        MarniPadShutdown();
+
         SDL_GL_DeleteContext(ctx);
         SDL_DestroyWindow(window);
         SDL_Quit();
@@ -334,6 +338,10 @@ int main(int argc, char** argv)
     MarniDX_DestroyGlobal();
     SDL_GL_DeleteContext(ctx);
     SDL_DestroyWindow(window);
+    
+    // port-addition: Release all SDL controller handles before SDL shutdown.
+    MarniPadShutdown();
     SDL_Quit();
+
     return 0;
 }

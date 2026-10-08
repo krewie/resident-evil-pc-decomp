@@ -89,3 +89,6 @@ public:
 // Slot 0 is the only entry the game reads (ReadPadBoth, read_sidewinder_pad),
 // so this is exactly "can a pad drive the game right now".
 bool MarniPadIsConnected(void);
+
+// port-addition: Clean up SDL controller resources on game exit.
+void MarniPadShutdown(void);
