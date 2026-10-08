@@ -399,6 +399,8 @@ void ConfigFile_EnsureExists(void)
         "; per-movie mask leaves the endings, the staff rolls and two of the\n"
         "; cutscenes unskippable; set this to 1 to make those skippable too.\n"
         "SkipUnskippableFmv=%d\n"
+        "; 0 = show Capcom startup logo, 1 = skip it\n"
+        "SkipCapcomLogo=%d\n"
         "\n"
         "[Debug]\n"
         "; Master switch for the port-added debug features: F1 debug menu, F6\n"
@@ -423,6 +425,7 @@ void ConfigFile_EnsureExists(void)
         g_bPs1EndingCredits ? 1 : 0,
         g_bPs1FmvSubtitles ? 1 : 0,
         g_bSkipUnskippableFmv ? 1 : 0,
+        g_bSkipLogosFmv ? 1 : 0,
 #ifdef _DEBUG
         1,
 #else
