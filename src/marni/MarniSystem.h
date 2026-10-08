@@ -26,16 +26,9 @@ struct MarniRenderViewport {
     float y;
     float width;
     float height;
-    float scale;
+    float scaleX;
+    float scaleY;
 };
-
-enum MarniScaleMode
-{
-    MARNI_SCALE_FIT = 0,
-    MARNI_SCALE_INTEGER = 1
-};
-
-extern MarniScaleMode g_scaleMode;
 
 // ============================================================================
 // CMarniDirect3D - Capcom's original D3D wrapper class (vtable at 0x004af230)

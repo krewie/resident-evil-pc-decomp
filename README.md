@@ -21,11 +21,25 @@ Current additions include:
   SkipCapcomLogo=1
   ```
 
-- **Quick turn** — press **Down + Run/Dash** to perform a 180-degree quick turn, similar to the mechanic introduced in *Resident Evil 3*.
+- **Viewport rendering** — the original logical game resolution is mapped into a centered presentation viewport, preserving the intended aspect ratio instead of stretching the image to fill the backbuffer. Rendering outside the viewport is clipped, allowing proper letterboxing or pillarboxing when necessary.
 
-- **Viewport rendering** — the original logical game resolution is now mapped into a centered presentation viewport using a uniform scale. This preserves the intended aspect ratio instead of independently stretching the X and Y axes to fill the backbuffer. Rendering outside the viewport is clipped, allowing proper letterboxing or pillarboxing when necessary.
-The viewport abstraction also makes it possible to support alternative presentation modes later, such as stretch-to-fill or configurable aspect ratios, without changing the game's logical rendering code.
-Right now i intend to keep it 4 by 3 as it was the intended ratio for the backgrounds...
+  The default is **4:3**, matching the original pre-rendered backgrounds. Alternative aspect ratios are available for experimentation.
+
+  ```ini
+  [Display]
+  ; 0 = original 4:3, 1 = 3:2, 2 = stretch to fill
+  AspectMode=0
+  ```
+
+- **Integer scaling** — optionally scales the game using whole-number multiples of its original 320×240 resolution, avoiding fractional scaling. Press **F2** to toggle integer scaling during gameplay.
+
+  ```ini
+  [Display]
+  ; 0 = fractional scaling, 1 = integer scaling
+  ScaleMode=0
+  ```
+
+- **Quick turn** — press **Down + Run/Dash** to perform a 180-degree quick turn, similar to the mechanic introduced in *Resident Evil 3*.
 
 - **EKG scaling correctly** - the health EKG line now renders slightly thicker to better match its PlayStation counterpart.
 
@@ -33,7 +47,6 @@ Right now i intend to keep it 4 by 3 as it was the intended ratio for the backgr
 
 - **Map bugfix** - The map rendering has also been updated to work correctly with arbitrary viewport sizes and aspect ratios. Previously the map didnt render properly due with width issues.
 
-- **Integer scaling** - Press F2 to toggle integer scaling on or off.
 # Resident Evil 1 for PC Decompilation
 
 ## Introduction

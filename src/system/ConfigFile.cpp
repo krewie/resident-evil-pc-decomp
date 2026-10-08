@@ -353,6 +353,12 @@ void ConfigFile_EnsureExists(void)
         "; Wait for vblank on present. 0 = off (default, and what the original did\n"
         "; in a window): the engine paces itself to 33 ms per tick in software.\n"
         "VSync=%d\n"
+        "; 0 = pause when unfocused, 1 = keep running in background\n"
+        "RunInBackground=%d\n"
+        "; 0 = fractional scaling, 1 = integer scaling\n"
+        "ScaleMode=%d\n"
+        "; 0 = 4:3, 1 = 3:2, 2 = stretch to full backbuffer\n"
+        "AspectMode=%d\n"
         "\n"
         "[Assets]\n"
         "; Folder that holds the USA/ and JPN/ data trees. Relative paths are\n"
@@ -410,6 +416,8 @@ void ConfigFile_EnsureExists(void)
         g_bFullScreen ? 1 : 0,
         (unsigned)g_dwScreenWidth, (unsigned)g_dwScreenHeight,
         (unsigned)g_dwBitDepth, g_bVSync ? 1 : 0,
+        g_bRunInBackground ? 1 : 0,
+        (int)g_scaleMode, (int)g_aspectMode,
         (GetAssetVersion() == 1) ? "JPN" : "USA",
         GameModeName(g_GameMode),
         g_bPs1EndingCredits ? 1 : 0,
@@ -449,6 +457,17 @@ BOOL ConfigFile_Load(void)
     g_bVSync         = ReadInt(path, "Display", "VSync", g_bVSync ? 1 : 0) ? TRUE : FALSE;
     g_bRunInBackground = ReadInt(path, "Display", "RunInBackground", g_bRunInBackground ? 1 : 0) ? TRUE : FALSE;
 
+    int scaleMode = ReadInt(path, "Display", "ScaleMode", 0);
+    int aspectMode = ReadInt(path, "Display", "AspectMode", 0);
+
+    g_scaleMode = (scaleMode == 1)
+        ? MARNI_SCALE_INTEGER
+        : MARNI_SCALE_FIT;
+
+    g_aspectMode = (aspectMode >= 0 && aspectMode <= 2)
+        ? (MarniAspectMode)aspectMode
+        : MARNI_ASPECT_FIT; 
+    
     // Same clamps the Windows build applied.
     if (g_dwScreenWidth < 320) g_dwScreenWidth = 640;
     if (g_dwScreenHeight < 240) g_dwScreenHeight = 480;

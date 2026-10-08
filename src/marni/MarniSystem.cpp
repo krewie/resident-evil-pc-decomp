@@ -24,8 +24,6 @@
 #include <new>
 #include <cmath>
 
-MarniScaleMode g_scaleMode = MARNI_SCALE_FIT;
-
 // Verify the struct size is exactly what the original binary expects.
 // operator_new(0x21DC) in InitializeMarniSystem must match sizeof.
 static_assert(sizeof(CMarniDirect3D) == 0x21DC, "CMarniDirect3D size mismatch — padding fix needed");
@@ -837,13 +835,15 @@ BOOL MarniCreateTexture(int width, int height, int bpp, const void* pixelData,
     return (*outTex != MARNI_NULL_HANDLE);
 }
 
-// ============================================================================
-// MarniGetRenderViewport
-// Maps the logical game resolution into a centered, aspect-preserving
-// presentation area within the physical backbuffer.
-// ============================================================================
+
+ // ============================================================================
+ // MarniGetRenderViewport
+ // Maps the logical 320x240 game resolution into the physical backbuffer.
+ // Supports 4:3, 3:2 and full-backbuffer stretching, with optional integer scaling.
+ // ============================================================================
 MarniRenderViewport MarniGetRenderViewport()
 {
+    // setup width and height.
     DWORD bw = 0;
     DWORD bh = 0;
 
@@ -856,34 +856,62 @@ MarniRenderViewport MarniGetRenderViewport()
     if (bw < 320) bw = 320;
     if (bh < 240) bh = 240;
 
-    float scale;
+    MarniRenderViewport vp = {};
 
+    float backWidth  = (float)bw;
+    float backHeight = (float)bh;
+
+    // Full backbuffer: original non-uniform stretching behavior
+    if (g_aspectMode == MARNI_ASPECT_STRETCH) {
+        vp.x = 0.0f;
+        vp.y = 0.0f;
+
+        vp.width  = backWidth;
+        vp.height = backHeight;
+
+        vp.scaleX = vp.width / 320.0f;
+        vp.scaleY = vp.height / 240.0f;
+
+        return vp;
+    }
+
+    float aspect = (g_aspectMode == MARNI_ASPECT_3by2)
+        ? 3.0f / 2.0f
+        : 4.0f / 3.0f;
+
+    float targetWidth;
+    float targetHeight;
+
+    if (backWidth / backHeight <= aspect) {
+        targetWidth = backWidth;
+        targetHeight = backWidth / aspect;
+    }
+    else {
+        targetHeight = backHeight;
+        targetWidth = backHeight * aspect;
+    }
+
+    // Apply integer scaling relative to the logical game height
     if (g_scaleMode == MARNI_SCALE_INTEGER) {
-        float sx = (float)bw / 320.0f;
-        float sy = (float)bh / 240.0f;
-
-        scale = floorf((sx < sy) ? sx : sy);
+        float scale = floorf(targetHeight / 240.0f);
 
         if (scale < 1.0f)
             scale = 1.0f;
-    }
-    else {
-        float sx = (float)bw / 320.0f;
-        float sy = (float)bh / 240.0f;
 
-        scale = (sx < sy) ? sx : sy;
+        targetHeight = 240.0f * scale;
+        targetWidth = targetHeight * aspect;
     }
 
-    MarniRenderViewport vp;
+    vp.width = targetWidth;
+    vp.height = targetHeight;
 
-    vp.width  = 320.0f * scale;
-    vp.height = 240.0f * scale;
+    // Center the viewport
+    vp.x = (backWidth -  vp.width)  * 0.5f;
+    vp.y = (backHeight - vp.height) * 0.5f;
 
-    vp.x = ((float)bw - vp.width) * 0.5f;
-    vp.y = ((float)bh - vp.height) * 0.5f;
-
-    vp.scale = scale;
-
+    // Independent scaling for each axis
+    vp.scaleX = vp.width / 320.0f;
+    vp.scaleY = vp.height / 240.0f;
 
     return vp;
 }

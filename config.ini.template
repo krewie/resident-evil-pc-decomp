@@ -10,6 +10,10 @@
 ; defaults apply until the first exit writes them out.
 
 [Display]
+; Scaling mode: 0 = Fractional/Fit, 1 = Integer
+ScaleMode=0
+; Aspect ratio: 0 = 4:3, 1 = 3:2, 2 = Stretch to fullscreen
+AspectMode=0
 ; 0 = windowed, 1 = fullscreen
 FullScreen=0
 ; Resolution width

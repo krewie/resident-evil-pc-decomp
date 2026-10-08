@@ -59,6 +59,8 @@ BOOL g_bFullScreen = FALSE;
 BOOL g_bVSync = FALSE;
 // config.ini [Display] RunInBackground. Allows the game to run in the background without interruption.
 BOOL g_bRunInBackground = FALSE;
+MarniScaleMode g_scaleMode = MARNI_SCALE_FIT;
+MarniAspectMode g_aspectMode = MARNI_ASPECT_FIT;
 // 0x004d642c
 int g_dwBitDepth = 16;
 // 0x004d6430
