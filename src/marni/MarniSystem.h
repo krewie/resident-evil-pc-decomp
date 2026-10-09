@@ -26,7 +26,8 @@ struct MarniRenderViewport {
     float y;
     float width;
     float height;
-    float scale;
+    float scaleX;
+    float scaleY;
 };
 
 // ============================================================================

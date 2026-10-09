@@ -51,6 +51,19 @@
 // SECTION 1: Window & display system
 // ============================================================================
 
+enum MarniScaleMode
+{
+    MARNI_SCALE_FIT = 0,
+    MARNI_SCALE_INTEGER = 1
+};
+
+enum MarniAspectMode
+{
+    MARNI_ASPECT_FIT = 0,       // Original 4:3, preserve aspect ration
+    MARNI_ASPECT_3by2 = 1,      // Force 3:2 aspect ratio with non-uniform scaling
+    MARNI_ASPECT_STRETCH = 2    // Fill entire backbuffer with non-uniform scaling
+};
+
 extern HWND          g_hWnd;                           // 0x00bcb2c0
 extern HINSTANCE     g_hInstance;                      // 0x00bcb2c4
 extern HANDLE        g_hMutex;                         // 0x00bcb2c8
@@ -73,6 +86,9 @@ extern DWORD         g_dwScreenHeight;                 // 0x007d9154
 extern BOOL          g_bFullScreen;
 extern BOOL          g_bVSync;                         // config.ini [Display] VSync                    // 0x007d9158
 extern BOOL          g_bRunInBackground;               // config.ini [Display] RunInBackground          //Allow seamlessly run app in background even in fullscreen. 
+// Port-added display scaling settings
+extern MarniScaleMode  g_scaleMode;                    // config.ini [Display] ScaleMode
+extern MarniAspectMode g_aspectMode;                   // config.ini [Display] AspectMode
 extern int           g_dwBitDepth;                     // 0x004d642c
 extern DWORD         g_GPU_VENDOR_ID;                  // 0x004bcb64
 

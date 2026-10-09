@@ -132,12 +132,17 @@ static BOOL MciOpenAndPlay(const char* absPath, int playToMs)
 
     s_windowCreated = TRUE;
 
-    // Fill the whole client area. The MCI AVI video is always 320x240; MCI
-    // handles centering within the destination.
-    RECT clientRect;
-    GetClientRect(g_hWnd, &clientRect);
-    sprintf_s(cmd, sizeof(cmd), "put movie destination at 0 0 %d %d",
-              clientRect.right - 1, clientRect.bottom - 1);
+    MarniRenderViewport vp = MarniGetRenderViewport();
+
+    sprintf_s(
+        cmd, sizeof(cmd),
+        "put movie destination at %d %d %d %d",
+        (int)vp.x,
+        (int)vp.y,
+        (int)vp.width,
+        (int)vp.height
+    );
+    
     mciSendStringA(cmd, NULL, 0, g_hWnd);
 
     // The cut points are frame numbers; MCIAVI already defaults to the frames
@@ -541,18 +546,22 @@ static void Present(void)
         dx->UpdateTexturePixels(s_tex, s_rgba, s_width, s_height, 32);
     }
 
-    DWORD bw = 0, bh = 0;
-    dx->GetBackBufferSize(&bw, &bh);
-    if (bw == 0 || bh == 0) return;
+    MarniRenderViewport vp = MarniGetRenderViewport();
+
 
     dx->Clear(0.0f, 0.0f, 0.0f, 1.0f);
     const int frameMs = s_frameIndex > 0
         ? (int)((double)s_frameIndex * 1000.0 / s_fps + 0.5) : 0;
     if (s_overlayCallback == NULL || !s_overlayCallback(s_tex, frameMs)) {
-        dx->DrawSprite(0.0f, 0.0f, (float)bw, (float)bh,
-                       0.0f, 0.0f, 1.0f, 1.0f,
-                       0xFFFFFFFFu, s_tex, MARNI_SAMPLER_POINT,
-                       MARNI_BLEND_DISABLE);
+        dx->DrawSprite(
+            vp.x, vp.y,
+            vp.width, vp.height,
+            0.0f, 0.0f, 1.0f, 1.0f,
+            0xFFFFFFFFu,
+            s_tex,
+            MARNI_SAMPLER_POINT,
+            MARNI_BLEND_DISABLE
+        );
     }
     dx->Present();
 }

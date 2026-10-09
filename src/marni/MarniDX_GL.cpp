@@ -446,6 +446,9 @@ void MarniDX::Clear(float r, float g, float b, float a)
     Impl* p = m_pImpl;
     if (p == nullptr || !p->ready) return;
     glViewport(0, 0, p->width, p->height);
+
+    glDisable(GL_SCISSOR_TEST);
+
     glClearColor(r, g, b, a);
     // glClear is masked by the depth write mask. The 2D path leaves it GL_FALSE
     // (DrawBatch disables it for every non-depth draw), so without forcing it
@@ -463,6 +466,34 @@ void MarniDX::Present()
     Impl* p = m_pImpl;
     if (p == nullptr || !p->ready || p->window == nullptr) return;
     SDL_GL_SwapWindow(p->window);
+}
+
+void MarniDX::SetScissorRect(int x, int y, int w, int h)
+{
+    Impl* p = m_pImpl;
+
+    if (p == nullptr || !p->ready) {
+        return;
+    }
+
+    glEnable(GL_SCISSOR_TEST);
+
+    // Marni uses top-left origin, OpenGL uses bottom-left.
+    glScissor(x, p->height - (y + h), w, h);
+}
+
+void MarniDX::Resize(int width, int height)
+{
+    Impl* p = m_pImpl;
+
+    if (p == nullptr || !p->ready) {
+        return;
+    }
+
+    p->width = width;
+    p->height = height;
+
+    glViewport(0, 0, width, height);
 }
 
 // ---------------------------------------------------------------------------

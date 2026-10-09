@@ -1,6 +1,7 @@
 // WindowProc.cpp - Main window procedure + keyboard input handling
 // WindowProc (0x00441170), OnKeyDown (0x00497830)
 #include "Globals.h"
+#include "marni/MarniSystem.h"
 #include <mmsystem.h>
 
 // ============================================================================
@@ -22,6 +23,13 @@ void OnKeyDown(HWND hwnd, WPARAM wparam)
 			g_F1DebugMode = 0;
 		}
 		break;
+
+    case VK_F2:
+        // port-addition: toggle integer scaling.
+        g_scaleMode = g_scaleMode == MARNI_SCALE_INTEGER
+            ? MARNI_SCALE_FIT
+            : MARNI_SCALE_INTEGER;
+        break;
 
 	case VK_F9: // 0x78
 		now = timeGetTime();

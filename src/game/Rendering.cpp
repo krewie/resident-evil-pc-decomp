@@ -12,6 +12,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <time.h>
+#include <cmath>
 
 extern unsigned int set_message_display(unsigned short msg_id, unsigned short pause_game);
 extern void Flg_on(int baseAddr, unsigned int bitIndex);
@@ -93,10 +94,10 @@ int AddTintSprite(TextureDesc* texture, unsigned short brightness)
 
     MarniRenderViewport vp = MarniGetRenderViewport();
 
-    float screenX = vp.x + gameX * vp.scale;
-    float screenY = vp.y + gameY * vp.scale;
-    float charW = (float)texture->width * vp.scale;
-    float charH = (float)texture->height * vp.scale;
+    float screenX = vp.x + gameX * vp.scaleX;
+    float screenY = vp.y + gameY * vp.scaleY;
+    float charW = (float)texture->width * vp.scaleX;
+    float charH = (float)texture->height * vp.scaleY;
 
     // Font page select. The original's AddTintSprite looks `texturePage` up in
     // the texture-page table (JPN 0x00441120 / USA 0x0046e0a0 search slots
@@ -215,10 +216,10 @@ void draw_rect(RectDrawDesc* rect, int blend, int flags)
     //MarniGetRenderScale(&scaleX, &scaleY);
     MarniRenderViewport vp = MarniGetRenderViewport();
 
-    float screenX = vp.x + gameX * vp.scale;
-    float screenY = vp.y + gameY * vp.scale;
-    float screenW = gameW * vp.scale;
-    float screenH = gameH * vp.scale;
+    float screenX = vp.x + gameX * vp.scaleX;
+    float screenY = vp.y + gameY * vp.scaleY;
+    float screenW = gameW * vp.scaleX;
+    float screenH = gameH * vp.scaleY;
 
     unsigned char r = (unsigned char)(rect->r & 0xFF);
     unsigned char g = (unsigned char)(rect->g & 0xFF);
@@ -325,10 +326,10 @@ void QueueTexturedSprite(float gameX, float gameY, float gameW, float gameH,
     MarniRenderViewport vp = MarniGetRenderViewport();
 
     PendingSprite* spr = &g_pendingSprites[g_pendingSpriteCount];
-    spr->x = vp.x + (gameX + (float)g_ScreenOffsetX) * vp.scale;
-    spr->y = vp.y + (gameY + (float)g_ScreenOffsetY) * vp.scale;
-    spr->w = gameW * vp.scale;
-    spr->h = gameH * vp.scale;
+    spr->x = vp.x + (gameX + (float)g_ScreenOffsetX) * vp.scaleX;
+    spr->y = vp.y + (gameY + (float)g_ScreenOffsetY) * vp.scaleY;
+    spr->w = gameW * vp.scaleX;
+    spr->h = gameH * vp.scaleY;
     spr->u0 = 0.0f;
     spr->v0 = 0.0f;
     spr->u1 = 1.0f;

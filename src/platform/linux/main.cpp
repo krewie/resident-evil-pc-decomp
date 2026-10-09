@@ -91,7 +91,10 @@ int main(int argc, char** argv)
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
-    Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
+    Uint32 flags =
+        SDL_WINDOW_OPENGL |
+        SDL_WINDOW_SHOWN |
+        SDL_WINDOW_RESIZABLE;
     SDL_Window* window = SDL_CreateWindow("RESIDENT EVIL", SDL_WINDOWPOS_CENTERED,
                                           SDL_WINDOWPOS_CENTERED, width, height, flags);
     if (window == NULL) {
@@ -143,6 +146,10 @@ int main(int argc, char** argv)
     InitializeMarniSystem();
     if (!IsGraphicsSystemReadyForOperation()) {
         fprintf(stderr, "graphics system failed to initialize\n");
+
+        // port-addition: Release controllers if graphics initialization fails.
+        MarniPadShutdown();
+
         SDL_GL_DeleteContext(ctx);
         SDL_DestroyWindow(window);
         SDL_Quit();
@@ -191,12 +198,48 @@ int main(int argc, char** argv)
                 if (e.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) g_bWindowFocused = TRUE;
                 else if (e.window.event == SDL_WINDOWEVENT_FOCUS_LOST) g_bWindowFocused = FALSE;
                 else if (e.window.event == SDL_WINDOWEVENT_CLOSE) running = 0;
+                else if (e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
+                {
+                    int newWidth = e.window.data1;
+                    int newHeight = e.window.data2;
+
+                    int drawableWidth = 0;
+                    int drawableHeight = 0;
+
+                    SDL_GL_GetDrawableSize(window, 
+                        &drawableWidth, 
+                        &drawableHeight);
+                        
+                    MarniDX* dx = Marni_DX();
+
+                    if (dx != nullptr) {
+                        dx->Resize(drawableWidth, drawableHeight);
+                    }
+                }
                 break;
             case SDL_KEYDOWN:
-                plat_key_event(e.key.keysym.scancode, TRUE);
+                if (g_bWindowFocused) {
+                    plat_key_event(e.key.keysym.scancode, TRUE);
+
+                    if (!e.key.repeat) {
+                        switch (e.key.keysym.scancode) {
+                        case SDL_SCANCODE_F2:
+                            g_scaleMode = g_scaleMode == MARNI_SCALE_INTEGER
+                                ? MARNI_SCALE_FIT
+                                : MARNI_SCALE_INTEGER;
+                            break;
+
+                        case SDL_SCANCODE_F9:
+                            // TODO: port the Windows OnKeyDown(VK_F9) logic here
+                            break;
+                        }
+                    }
+                }
                 break;
             case SDL_KEYUP:
-                plat_key_event(e.key.keysym.scancode, FALSE);
+                if (g_bWindowFocused) {
+                    plat_key_event(e.key.keysym.scancode, FALSE);
+                }
                 break;
             default:
                 break;
@@ -204,7 +247,10 @@ int main(int argc, char** argv)
         }
 
         if (!running || g_bQuitFlag) break;
-        if (!g_bWindowFocused) { SDL_Delay(1); continue; }
+        if (!g_bWindowFocused && !g_bRunInBackground) {
+            SDL_Delay(1);
+            continue;
+        }
 
         DWORD now = plat_time_ms();
 
@@ -292,6 +338,10 @@ int main(int argc, char** argv)
     MarniDX_DestroyGlobal();
     SDL_GL_DeleteContext(ctx);
     SDL_DestroyWindow(window);
+    
+    // port-addition: Release all SDL controller handles before SDL shutdown.
+    MarniPadShutdown();
     SDL_Quit();
+
     return 0;
 }

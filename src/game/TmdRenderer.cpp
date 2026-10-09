@@ -374,8 +374,8 @@ void FlushTmdObjects(void)
         
         MarniRenderViewport vp = MarniGetRenderViewport();
 
-        float cx = vp.x + (float)g_SubpixelOffsetX * vp.scale;
-        float cy = vp.y + (float)g_SubpixelOffsetY * vp.scale;
+        float cx = vp.x + (float)g_SubpixelOffsetX * vp.scaleX;
+        float cy = vp.y + (float)g_SubpixelOffsetY * vp.scaleY;
         // Project in GAME-SPACE (320x240) exactly like the original GTE
         // (GteMatrix.cpp: sx = x*param/z + 160, sy = ... + 120) and only then
         // apply the render scales - X and Y SEPARATELY. The old code folded
@@ -609,8 +609,8 @@ void FlushTmdObjects(void)
                 else {
                     clipped[v] = 0;
                     float iz = fg / vz;
-                    sx[v] = cx + vx * iz * vp.scale;
-                    sy[v] = cy - vy * iz * vp.scale;
+                    sx[v] = cx + vx * iz * vp.scaleX;
+                    sy[v] = cy - vy * iz * vp.scaleY;
                 }
 
                 if (unlit) {

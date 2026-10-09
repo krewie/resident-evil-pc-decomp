@@ -423,12 +423,18 @@ void Present(void)
     if (bw == 0 || bh == 0) return;
 
     dx->Clear(0.0f, 0.0f, 0.0f, 1.0f);
+
     const int frameMs = s_frameIndex > 0
         ? (int)((double)s_frameIndex * 1000.0 / s_fps + 0.5) : 0;
     if (s_overlayCallback == NULL || !s_overlayCallback(s_tex, frameMs)) {
-        dx->DrawSprite(0.0f, 0.0f, (float)bw, (float)bh,
-                       0.0f, 0.0f, 1.0f, 1.0f,
-                       0xFFFFFFFFu, s_tex, MARNI_SAMPLER_POINT, MARNI_BLEND_DISABLE);
+
+        MarniRenderViewport vp = MarniGetRenderViewport();
+
+        dx->DrawSprite(
+            vp.x, vp.y, vp.width, vp.height,
+            0.0f, 0.0f, 1.0f, 1.0f,
+            0xFFFFFFFFu, s_tex, MARNI_SAMPLER_POINT, MARNI_BLEND_DISABLE
+        );
     }
     dx->Present();
 }
