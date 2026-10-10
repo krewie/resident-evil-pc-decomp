@@ -844,7 +844,7 @@ static bool enemy_death_flag_allows_spawn(void)
 {
     unsigned char enemyId = g_ScdOpcodes[1];
 
-    bool canRevive = (enemyId == 0 || enemyId == 1);
+    bool canRevive = (enemyId == 0);
 
     if ((char)g_ScdOpcodes[3] == -1) {
         return true;
