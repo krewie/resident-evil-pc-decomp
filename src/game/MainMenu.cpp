@@ -6487,7 +6487,7 @@ int FUN_0044e1b0(void)
             if (g_TotalHeldItems < g_totalInventorySlots) {
                 uVar7 = 0xc0;
             } else {
-                if (((ITEM_EXPLOSIVE_ROUNDS < g_bItemMenuSelectedItemId) && (g_bItemMenuSelectedItemId < ITEM_EMPTY_BOTTLE)) || (g_bItemMenuSelectedItemId == ITEM_INK_RIBBONS)) {
+                if (((ITEM_ROCKET_LAUNCHER < g_bItemMenuSelectedItemId) && (g_bItemMenuSelectedItemId < ITEM_EMPTY_BOTTLE)) || (g_bItemMenuSelectedItemId == ITEM_INK_RIBBONS)) {
                     // Same doubling the pickup itself will apply, so the
                     // "you got it" / "no room" choice matches what lands in the
                     // inventory (PS1 FUN_8002e1a4 repeats IncludeCurrentItem's
