@@ -3228,9 +3228,21 @@ static void map_display_animate(unsigned char* state)
             g_MapZoomDesc[i].scaleX = 0x1000;
             g_MapZoomDesc[i].scaleY = 0x1000;
         }
+        /*
         g_MapZoomDesc[0].screenX = 0x80;
         g_MapZoomDesc[0].screenY = 0x4e;
         g_MapZoomDesc[0].width = 0x80;
+        */
+
+        // TODO KRILLE: Check if this adjustment works well on Linux, important part is the 160 width adjustment.
+        g_MapZoomDesc[0].scaleX = 0xD00; // 81.25%
+        g_MapZoomDesc[0].scaleY = 0xD00; // 81.25%
+
+        g_MapZoomDesc[0].screenX = 0;   // Horizontal position
+        g_MapZoomDesc[0].screenY = -6;  // Vertical position
+
+        g_MapZoomDesc[0].width = 160;  // Keep your current width
+
         g_MapZoomDesc[1].screenX = 0x70;
         g_MapZoomDesc[1].screenY = 0x4c;
         g_MapZoomDesc[1].width = 0x50;
